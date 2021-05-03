@@ -12,11 +12,15 @@ data "repo" {
     fields = {
         "name": "github.com/valocode/bubbly"
     }
-    data "commit" {
+    data "branch" {
         fields = {
-            "id": "asdasdasdasdasd",
-            "tag": "0.1.23",
-            "branch": "main"
+            "name": "main"
+        }
+        data "commit" {
+            fields = {
+                "id": "asdasdasdasdasd",
+                "tag": "0.1.23"
+            }
         }
     }
 }
@@ -93,13 +97,11 @@ data "commit" {
     fields = {
         "id": "asdasdasdasdasd",
     }
-    // TODO: won't work yet... needs implementing
     policy = "reference"
 }
 
 data "release_item" {
     joins = ["commit", "release"]    
-    // TODO: won't work yet... needs implementing
     policy = "reference"
 }
 
@@ -111,4 +113,38 @@ data "release_entry" {
 
     // Join to the release_item we reference above
     joins = ["release_item"]
+}
+
+
+// #############################
+// Let's load a test_run
+// #############################
+
+data "project" {
+    fields = {
+        "name": "bubbly"
+    }
+    policy = "reference"
+}
+
+data "release" {
+    fields = {
+        "name": "bubbly"
+    }
+    joins = ["project"]
+    policy = "reference"
+}
+
+data "test_run" {
+    fields = {
+        "name": "unit tests",
+        "result": true
+    }
+    data "test_case" {
+        fields = { "name": "test_case_1" }
+    }
+    data "test_case" {
+        fields = { "name": "test_case_2" }
+    }
+    joins = ["release"]
 }

@@ -213,6 +213,8 @@ const (
 	QueryResourceKind = "query"
 	// CriteriaResourceKind represents the resource kind criteria
 	CriteriaResourceKind = "criteria"
+	// ReleaseResourceKind is used to create releases in bubbly
+	ReleaseResourceKind = "release"
 )
 
 // ResourceKindPriority returns a list of the resource kinds by their priority
@@ -222,6 +224,7 @@ func ResourceKindPriority() []ResourceKind {
 		TransformResourceKind,
 		LoadResourceKind,
 		QueryResourceKind,
+		ReleaseResourceKind,
 		// Pipeline and Criteria both reference other resources
 		PipelineResourceKind,
 		CriteriaResourceKind,

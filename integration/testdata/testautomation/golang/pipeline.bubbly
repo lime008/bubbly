@@ -23,14 +23,14 @@ resource "transform" "gotest" {
     spec {
         input "data" {}
 
-        data "repo_version" {
+        data "commit" {
             fields = {
-                "commit": "madeupcommit54321"
+                "id": "madeupcommit54321"
             }
         }
 
         data "test_run" {
-            joins = ["repo_version"]
+            joins = ["commit"]
             fields = {
                 "name": "testrun123"
                 "description": "Golang unit tests in CI"

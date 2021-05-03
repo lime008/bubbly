@@ -106,6 +106,13 @@ func TestApply(t *testing.T) {
 
 func TestApplyRun(t *testing.T) {
 	// Subtest
+	t.Run("release", func(t *testing.T) {
+		bCtx := env.NewBubblyContext()
+		bCtx.UpdateLogLevel(zerolog.DebugLevel)
+
+		err := bubbly.Apply(bCtx, "./testdata/resources/v1/release/release-git.bubbly")
+		assert.NoError(t, err, "failed to apply resource")
+	})
 	t.Run("sonarqube_run", func(t *testing.T) {
 		bCtx := env.NewBubblyContext()
 		bCtx.UpdateLogLevel(zerolog.DebugLevel)

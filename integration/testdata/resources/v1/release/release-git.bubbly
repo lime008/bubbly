@@ -1,0 +1,41 @@
+
+resource "release" "git" {
+    spec {
+        // input "product" {
+        //     default = ""
+        //     type = string
+        // }
+        // input "project" {
+        //     default = ""
+        //     type = string
+        // }
+
+        // product = self.input.product
+        // project = self.input.project
+        version = "1.2.3"
+        product = "bubbly"
+        project = "bubbly"
+
+        git {
+            name = "test-tepo"
+            repo = "./testdata/git/repo1.git"
+        }
+
+        artifact { 
+            name = "bubbly"
+            location = "docker://bubbly_bubbly"
+        }
+
+        stage "Artifact" {
+            criteria "artifact" {
+                
+            }
+        }
+    }
+}
+
+resource "run" "release-git" {
+    spec {
+        resource = "release/git"
+    }
+}

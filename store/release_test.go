@@ -84,3 +84,47 @@ func TestRelease(t *testing.T) {
 		}
 	}
 }
+
+func TestReleaseModel(t *testing.T) {
+	releaseQuery := `
+{
+	test_run {
+		release {
+			release_item {
+				commit {
+					id
+					branch {
+						name
+					}
+				}
+			}
+		}
+	}
+}`
+	bCtx := env.NewBubblyContext()
+	bCtx.UpdateLogLevel(zerolog.DebugLevel)
+	resource := test.RunPostgresDocker(bCtx, t)
+	bCtx.StoreConfig.PostgresAddr = fmt.Sprintf("localhost:%s", resource.GetPort("5432/tcp"))
+	// bCtx.StoreConfig.PostgresAddr = "localhost:5432"
+
+	// Parse the schema and data blocks
+	tables := testData.Tables(t, bCtx, "./testdata/release/schema.hcl")
+	data := testData.DataBlocks(t, bCtx, "./testdata/release/data.hcl")
+
+	// Initialize a new bubbly store (connection to postgres)
+	s, err := New(bCtx)
+	require.NoErrorf(t, err, "failed to initialize store")
+	err = s.Apply(DefaultTenantName, tables)
+	require.NoErrorf(t, err, "failed to apply schema from tables")
+
+	err = s.Save(DefaultTenantName, data)
+	require.NoErrorf(t, err, "failed to save data blocks")
+
+	// Query and get the result
+	result, err := s.Query(DefaultTenantName, releaseQuery)
+	assert.NoErrorf(t, err, "failed to run release query")
+	assert.Empty(t, result.Errors)
+	val, ok := result.Data.(map[string]interface{})
+	require.True(t, ok)
+	t.Logf("%#v", val)
+}

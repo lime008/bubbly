@@ -5,9 +5,15 @@ table "release" {
         type = string
         unique = true
     }
+    field "version" {
+        type = string
+        unique = true
+    }
 
     join "project" {
-        single = true
+        unique = true
+    }
+    join "product" {
         unique = true
     }
 }
@@ -136,26 +142,35 @@ table "repo" {
         unique = true
     }
 
-    // A specific commit/version in a git repository
-    table "commit" {
-        field "id" {
+    table "branch" {
+        unique = true
+        field "name" {
             type = string
             unique = true
         }
-        field "tag" {
-            type = string
-        }
-        field "branch" {
-            type = string
-        }
-        // Would be really cool to store the time of a commit, and then we can
-        // track how long it takes to do things, e.g. time to deploy
-        field "time" {
-            type = string
+
+        // A specific commit/version in a git repository
+        table "commit" {
+            field "id" {
+                type = string
+                unique = true
+            }
+            field "tag" {
+                type = string
+            }
+            // Would be really cool to store the time of a commit, and then we can
+            // track how long it takes to do things, e.g. time to deploy
+            field "time" {
+                type = string
+            }
         }
     }
 
+
     join "project" {}
+    // join "branch" {
+    //     alias = "default_branch"
+    // }
 }
 
 table "artifact" {
@@ -169,4 +184,21 @@ table "artifact" {
     field "location" {
         type = string
     }
+}
+
+table "test_run" {
+    field "name" {
+        type = string
+    }
+    field "result" {
+        type = bool
+    }
+
+    table "test_case" {
+        field "name" {
+            type = string
+        }
+    }
+
+    join "release" {}
 }
