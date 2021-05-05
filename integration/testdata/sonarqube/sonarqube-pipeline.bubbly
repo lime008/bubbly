@@ -69,13 +69,18 @@ resource "transform" "sonarqube" {
             }
         }
 
+        data "branch" {
+            fields = {
+                "name": self.input.repository.active_branch
+            }
+            joins = ["repo"]
+        }
         data "commit" {
             // get the repo_id by referencing the above data block
-            joins = ["repo"]
+            joins = ["repo", "branch"]
             fields = {
                 "id": self.input.repository.commit_id
                 "tag": self.input.repository.tag
-                "branch": self.input.repository.active_branch
             }
         }
 
