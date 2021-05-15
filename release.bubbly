@@ -34,6 +34,9 @@ release {
                     value = "./gotest.json"
                 }
             }
+            run "criteria/gotest" {
+                
+            }
         }
         criteria "integration_test" {}
     }

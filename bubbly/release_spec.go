@@ -19,6 +19,7 @@ import (
 	"github.com/valocode/bubbly/api/core"
 	"github.com/valocode/bubbly/env"
 	"github.com/zclconf/go-cty/cty"
+	"github.com/zclconf/go-cty/cty/gocty"
 )
 
 type ReleaseSpec struct {
@@ -467,9 +468,8 @@ type releaseCriteria struct {
 	Run      []resourceRun `hcl:"run,block"`
 }
 
-// EntryLog produces data blocks for the release criteria when it should be
-// logged as a release entry
-func (c *releaseCriteria) EntryLog(bCtx *env.BubblyContext, releaseRef core.DataBlocks) (core.DataBlocks, error) {
+// Evaluate evaluates a release criteria and produces data blocks to log a release entry
+func (c *releaseCriteria) Evaluate(bCtx *env.BubblyContext, releaseRef core.DataBlocks) (core.DataBlocks, error) {
 	// Validation of the release criteria
 	if c.Artifact != nil && len(c.Run) > 0 {
 		return nil, errors.New("release criteria cannot specify both artifact and resource runs")
@@ -478,21 +478,43 @@ func (c *releaseCriteria) EntryLog(bCtx *env.BubblyContext, releaseRef core.Data
 		return nil, errors.New("release criteria has no criteria")
 	}
 
-	var data core.DataBlocks
+	var (
+		data        core.DataBlocks
+		entryReason string
+		entryResult = true
+	)
+
 	if c.Artifact != nil {
 		// Get the data block for the artifact
+		// TODO: handle if the artifact doesn't exist. We do not want to error,
+		// but it should mark the release_entry as false, e.g.
+		// entry.Result = <ARTIFACT_RESULT>
 		aData, err := c.Artifact.Data()
 		if err != nil {
 			return nil, fmt.Errorf("error with artifact %s: %w", c.Artifact.Name, err)
 		}
 		data = append(data, aData...)
 	}
+	// TODO: Right now the logic is to take the last output... but we need to
+	// somehow know/mark which resources are criteria and which are just tasks
+	// to perform...
 	for _, run := range c.Run {
-		output := run.Run(bCtx, releaseRef)
+		resource, output := run.Run(bCtx, releaseRef)
 		if output.Error != nil {
 			return nil, fmt.Errorf("resource run failed for %s: %w", run.Resource, output.Error)
 		}
-
+		// If the resource was of criteria kind, then we care about the resource
+		// output value
+		if resource.Kind() == core.CriteriaResourceKind {
+			fmt.Printf("WE HAVE A CRITERIA:\n%s\n", output.Value.GoString())
+			var result core.CriteriaResult
+			if err := gocty.FromCtyValue(output.Value, &result); err != nil {
+				return nil, fmt.Errorf("error getting criteria result from resource output: %w", err)
+			}
+			fmt.Printf("Criteria result:\n%#v\n", result)
+			entryResult = result.Result
+			entryReason = result.Reason
+		}
 	}
 	// Create the data block for the release entry
 	data = append(data, core.Data{
@@ -507,7 +529,9 @@ func (c *releaseCriteria) EntryLog(bCtx *env.BubblyContext, releaseRef core.Data
 	data = append(data, core.Data{
 		TableName: "release_entry",
 		Fields: core.DataFields{
-			"name": cty.StringVal(c.Name),
+			"name":   cty.StringVal(c.Name),
+			"result": cty.BoolVal(entryResult),
+			"reason": cty.StringVal(entryReason),
 		},
 		Joins:  []string{"release_criteria"},
 		Policy: core.CreatePolicy,
@@ -520,10 +544,9 @@ type resourceRun struct {
 	Inputs   core.InputDefinitions `hcl:"input,block"`
 }
 
-func (r *resourceRun) Run(bCtx *env.BubblyContext, releaseRef core.DataBlocks) *core.ResourceOutput {
+func (r *resourceRun) Run(bCtx *env.BubblyContext, releaseRef core.DataBlocks) (core.Resource, core.ResourceOutput) {
 	ctx := core.NewResourceContext(cty.NilVal, api.NewResource, nil)
 	// Add the data block containing the release into the context
 	ctx.DataBlocks = releaseRef
-	_, output := common.RunResource(bCtx, ctx, r.Resource, r.Inputs.Value())
-	return &output
+	return common.RunResource(bCtx, ctx, r.Resource, r.Inputs.Value())
 }

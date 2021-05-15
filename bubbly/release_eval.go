@@ -33,7 +33,8 @@ func EvalReleaseCriteria(bCtx *env.BubblyContext, criteriaName string) (*Release
 	if err != nil {
 		return nil, err
 	}
-	dEntry, err := criteria.EntryLog(bCtx, releaseRef)
+	// Evaluate the release criteria and create the release entry data blocks
+	dEntry, err := criteria.Evaluate(bCtx, releaseRef)
 	if err != nil {
 		return nil, err
 	}

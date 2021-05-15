@@ -13,9 +13,16 @@ import (
 )
 
 func GetRelease(bCtx *env.BubblyContext) (*builtin.Release, error) {
+	// A query for a specific release (by name and version).
+	// The only tricky part is the order_by the release_entry to only get the
+	// latest for the release_criteria... as there may be multiple
+	// release_entry for one release_criteria
 	releaseQuery := `
 {
-	release(name: "%s", version: "%s") {
+	release(
+		name: "%s", version: "%s",
+		order_by:[{table: "release_entry", field: "_id", order: "DESC"}],
+		) {
 		name
 		version
 		project(id: "%s") {
@@ -34,6 +41,10 @@ func GetRelease(bCtx *env.BubblyContext) (*builtin.Release, error) {
 			name
 			release_criteria(filter_on: true) {
 				entry_name
+				release_entry {
+					result
+					reason
+				}
 			}
 		}
 	}

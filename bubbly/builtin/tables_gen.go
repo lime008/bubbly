@@ -50,10 +50,11 @@ var BuiltinTables = core.Tables{
 		fields(
 			field("name", cty.String, false),
 			field("result", cty.Bool, false),
+			field("reason", cty.String, false),
 		),
 		joins(
 			join("release", false, false),
-			join("release_criteria", false, false),
+			join("release_criteria", true, false),
 			join("_resource", false, false),
 		),
 	),

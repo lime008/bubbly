@@ -39,12 +39,12 @@ var queryTests = []struct {
 	{
 		name: "root query",
 		query: `
-			{
-				root(name: "first_root") {
-					name
-				}
+		{
+			root(name: "first_root") {
+				name
 			}
-			`,
+		}
+		`,
 		expected: map[string]interface{}{
 			"root": []interface{}{
 				map[string]interface{}{
@@ -56,15 +56,15 @@ var queryTests = []struct {
 	{
 		name: "root with child query",
 		query: `
-			{
-				root(name: "first_root") {
+		{
+			root(name: "first_root") {
+				name
+				child_a(name: "first_child") {
 					name
-					child_a(name: "first_child") {
-						name
-					}
 				}
 			}
-			`,
+		}
+		`,
 		expected: map[string]interface{}{
 			"root": []interface{}{
 				map[string]interface{}{
@@ -81,21 +81,21 @@ var queryTests = []struct {
 	{
 		name: "root with grandchild query",
 		query: `
-			{
-				root(name: "first_root") {
+		{
+			root(name: "first_root") {
+				name
+				child_a(name: "first_child") {
 					name
-					child_a(name: "first_child") {
+					grandchild_a(name: "second_grandchild") {
 						name
-						grandchild_a(name: "second_grandchild") {
+						child_a {
 							name
-							child_a {
-								name
-							}
 						}
 					}
 				}
 			}
-			`,
+		}
+		`,
 		expected: map[string]interface{}{
 			"root": []interface{}{
 				map[string]interface{}{
@@ -151,18 +151,18 @@ var queryTests = []struct {
 	{
 		name: "two sibling blocks query",
 		query: `
-			{
-				root(name: "first_root") {
+		{
+			root(name: "first_root") {
+				name
+				child_a(name: "first_child") {
 					name
-					child_a(name: "first_child") {
-						name
-					}
-					child_c(name: "sibling_child") {
-						name
-					}
+				}
+				child_c(name: "sibling_child") {
+					name
 				}
 			}
-			`,
+		}
+		`,
 		expected: map[string]interface{}{
 			"root": []interface{}{
 				map[string]interface{}{
@@ -388,7 +388,7 @@ var sqlGenTests = []struct {
 		data:   "data5.hcl",
 		query: `
 		{
-			testrun {
+			test_run {
 				configuration {
 					name
 				}
@@ -402,7 +402,7 @@ var sqlGenTests = []struct {
 			}
 		}`,
 		want: map[string]interface{}{
-			"testrun": []interface{}{
+			"test_run": []interface{}{
 				map[string]interface{}{
 					"ok": true,
 					"location": map[string]interface{}{

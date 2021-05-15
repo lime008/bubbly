@@ -31,6 +31,12 @@ type ResourceOutput struct {
 	Value  cty.Value
 }
 
+type CriteriaResult struct {
+	Result bool   `cty:"result"`
+	Reason string `cty:"reason"`
+	// Query  string `cty:"query"`
+}
+
 // Output returns a cty.Value which can be used inside an HCL EvalContext
 // to resolve variables/traversals
 func (r *ResourceOutput) Output() cty.Value {

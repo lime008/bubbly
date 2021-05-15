@@ -97,9 +97,27 @@ func (o *options) run() error {
 
 // Print prints the successful outcome of the cmd
 func (o *options) Print() {
+	status := builtin.ReleaseStatusByStages(*o.Release)
+
 	fmt.Println("Project: " + o.Release.Project.Id)
 	fmt.Println("Name: " + o.Release.Name)
 	fmt.Println("Version: " + o.Release.Version)
-	fmt.Println("Type: " + o.Release.ReleaseItem[0].Type)
-	fmt.Println("Status: " + builtin.ReleaseStatusByStages(*o.Release))
+	fmt.Println("Status: " + status)
+	fmt.Println("")
+	fmt.Println("Items:")
+	for _, item := range o.Release.ReleaseItem {
+		fmt.Println("  - " + item.Type)
+	}
+	fmt.Println("")
+	fmt.Println("Stages:")
+	for _, stage := range o.Release.ReleaseStage {
+		// fmt.Printf("\n\nSTAGE: %#v\n\n", stage)
+		stageStatus := builtin.ReleaseStageStatus(stage)
+		fmt.Println("\n** " + stage.Name + " (" + stageStatus + ") **")
+		for _, criteria := range stage.ReleaseCriteria {
+			criteriaStatus := builtin.ReleaseCriteriaStatus(criteria)
+			fmt.Println("    - Criteria: " + criteria.EntryName + " (" + criteriaStatus + ")")
+		}
+	}
+
 }
