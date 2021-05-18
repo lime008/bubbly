@@ -7,11 +7,11 @@ resource "extract" "gotest" {
             // file = self.input.file
             contents = "[${join(",", split("\n", trimspace(file(self.input.file))))}]"
             format = list(object({
-                Issues: list(object({
-                  rule_id: string,
-                  severity: string,
-                  details: string,
-                }))
+                Action: string,
+                Test: string,
+                Package: string,
+                Elapsed: number,
+                Output: string,
             }))
         }
     }
@@ -31,13 +31,13 @@ resource "transform" "gotest" {
 
         dynamic "data" {
             // Filter all the elements that aren't actually test results
-            for_each = [for i in self.input.results: i if can(i["Test"]) && can(i["Package"]) && can(i["Elapsed"])]
+            for_each = [for i in self.input.results: i if i["Test"] != null && i["Package"] != null && i["Elapsed"] != null]
             labels = ["test_case"]
             iterator = it
             content {
                 fields = {
                     "name": it.value["Test"],
-                    "message": join("\n", [for i in self.input.results: i["Output"] if can(i["Output"]) && can(i["Test"]) && try(i["Test"], "") == it.value["Test"]]),
+                    "message": join("\n", [for i in self.input.results: i["Output"] if i["Output"] !=null && i["Test"] !=null && try(i["Test"], "") == it.value["Test"]]),
                     "result": lower(it.value["Action"]) == "pass",
                 }
                 joins = ["test_run"]
