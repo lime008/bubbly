@@ -169,10 +169,10 @@ type ReleaseStage_Wrap struct {
 // RELEASE_CRITERIA
 // #######################################
 type ReleaseCriteria struct {
-	EntryName    string        `json:"entry_name"`
-	ReleaseEntry *ReleaseEntry `json:"release_entry"`
-	ReleaseStage *ReleaseStage `json:"release_stage"`
-	Release      *Release      `json:"release"`
+	EntryName    string         `json:"entry_name"`
+	ReleaseEntry []ReleaseEntry `json:"release_entry"`
+	ReleaseStage *ReleaseStage  `json:"release_stage"`
+	Release      *Release       `json:"release"`
 }
 type ReleaseCriteria_Wrap struct {
 	ReleaseCriteria []ReleaseCriteria `json:"release_criteria"`

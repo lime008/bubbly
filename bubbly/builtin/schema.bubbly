@@ -207,10 +207,10 @@ table "release_entry" {
     // Join to a release so that we can get all the entries for a release
     // (entry log)
     join "release" { }
-    // A release does not always have a release_criteria for each release_entry.
-    // We only care about the latest release_entry in a criteria, so make the
-    // relationship one-to-one
-    join "release_criteria" { single = true }
+    // A release does not always have a release_criteria for each release_entry,
+    // and may have multiple release_criteria in case multiple entries have been
+    // logged
+    join "release_criteria" { }
     // Join on the _resource criteria that created this entry release_entry
     join "_resource" { }
 }

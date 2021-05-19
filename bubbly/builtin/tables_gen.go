@@ -54,7 +54,7 @@ var BuiltinTables = core.Tables{
 		),
 		joins(
 			join("release", false, false),
-			join("release_criteria", true, false),
+			join("release_criteria", false, false),
 			join("_resource", false, false),
 		),
 	),

@@ -1,7 +1,5 @@
 package builtin
 
-import "fmt"
-
 func ReleaseStatusByStages(release Release) string {
 	for _, stage := range release.ReleaseStage {
 		status := ReleaseStageStatus(stage)
@@ -23,13 +21,13 @@ func ReleaseStageStatus(stage ReleaseStage) string {
 }
 
 func ReleaseCriteriaStatus(criteria ReleaseCriteria) string {
-	fmt.Printf("criteria: %#v\n", criteria)
-	fmt.Printf("criteria entry: %#v\n", criteria.ReleaseEntry)
-	if criteria.ReleaseEntry == nil {
+	if len(criteria.ReleaseEntry) == 0 {
 		return "PENDING"
 	}
-	if !criteria.ReleaseEntry.Result {
+	// We only care about the first (or latest) release entry
+	if !criteria.ReleaseEntry[0].Result {
 		return "BLOCKED"
+
 	}
 	return "READY"
 }

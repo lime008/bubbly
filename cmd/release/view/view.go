@@ -3,6 +3,7 @@ package view
 import (
 	"fmt"
 
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 
 	"github.com/valocode/bubbly/bubbly"
@@ -99,6 +100,12 @@ func (o *options) run() error {
 func (o *options) Print() {
 	status := builtin.ReleaseStatusByStages(*o.Release)
 
+	var (
+		green  = color.New(color.FgYellow).SprintFunc()
+		yellow = color.New(color.FgYellow).SprintFunc()
+		red    = color.New(color.FgRed).SprintFunc()
+	)
+
 	fmt.Println("Project: " + o.Release.Project.Id)
 	fmt.Println("Name: " + o.Release.Name)
 	fmt.Println("Version: " + o.Release.Version)
@@ -111,9 +118,19 @@ func (o *options) Print() {
 	fmt.Println("")
 	fmt.Println("Stages:")
 	for _, stage := range o.Release.ReleaseStage {
-		// fmt.Printf("\n\nSTAGE: %#v\n\n", stage)
+		var stageStatusStr string
 		stageStatus := builtin.ReleaseStageStatus(stage)
-		fmt.Println("\n** " + stage.Name + " (" + stageStatus + ") **")
+		switch stageStatus {
+		case "BLOCKED":
+			stageStatusStr = red(stageStatus)
+		case "PENDING":
+			stageStatusStr = yellow(stageStatus)
+		case "READY":
+			stageStatusStr = green(stageStatus)
+		default:
+			stageStatusStr = stageStatus
+		}
+		fmt.Printf("\n** "+stage.Name+" ( %s ) **\n", stageStatusStr)
 		for _, criteria := range stage.ReleaseCriteria {
 			criteriaStatus := builtin.ReleaseCriteriaStatus(criteria)
 			fmt.Println("    - Criteria: " + criteria.EntryName + " (" + criteriaStatus + ")")
