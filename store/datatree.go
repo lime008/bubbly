@@ -186,8 +186,10 @@ func dataBlocksToNodes(data core.DataBlocks, parent *core.Data, nodes map[string
 
 		// Check if the current data blocks have a parent. If they do, the
 		// easiest thing to do is to just add a join, and then the join will
-		// be processed as if it were explicitly provided
-		if parent != nil {
+		// be processed as if it were explicitly provided.
+		// Make sure the ignore_nesting property was not set, otherwise the
+		// implicit join should be ignored
+		if parent != nil && !d.IgnoreNesting {
 			d.Joins = append(d.Joins, parent.TableName)
 		}
 
