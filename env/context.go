@@ -8,21 +8,16 @@ import (
 	"github.com/valocode/bubbly/config"
 )
 
-// BubblyContext holds global bubbly state that is required to be injected into
-// functions throughout the codebase.
+// BubblyContext holds global bubbly state that is required
+// to be injected into functions throughout the codebase.
 type BubblyContext struct {
-	// Logger stores the global bubbly logger
-	Logger     *zerolog.Logger
-	AuthConfig *config.AuthConfig
-	// Config stores global bubbly configuration,
-	// such as bubbly server configuration
+	Logger       *zerolog.Logger
+	AuthConfig   *config.AuthConfig
 	ServerConfig *config.ServerConfig
-	// Store provider configuration
 	StoreConfig  *config.StoreConfig
 	AgentConfig  *config.AgentConfig
 	ClientConfig *config.ClientConfig
 	CLIConfig    *config.CLIConfig
-	// TODO: Could also contain a client.Client... consider.
 }
 
 // NewBubblyContext sets up a default Bubbly Context
@@ -40,7 +35,7 @@ func NewBubblyContext() *BubblyContext {
 
 // NewDefaultLogger sets up a default logger
 func NewDefaultLogger() *zerolog.Logger {
-	// Initialize Logger
+
 	logger := zerolog.New(zerolog.ConsoleWriter{
 		Out:     os.Stderr,
 		NoColor: false,
