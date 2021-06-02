@@ -8,11 +8,16 @@ export POSTGRES_ADDR=postgres:5432
 export POSTGRES_USER=postgres
 export POSTGRES_DATABASE=bubbly
 
+# Current commit id and (if set) the tag are compiled into the Bubbly binary
+sha ::= $(shell git rev-parse HEAD)
+tag ::= $(shell git name-rev --tags --name-only $(sha))
+pre ::= github.com/valocode/bubbly
+
 all: build
 
 .PHONY: build
 build:
-	go build -o ${BIN}
+	go build -o ${BIN} -ldflags "-X '${pre}/env.sha1=${sha}' -X '${pre}/env.tag=${tag}'"
 
 .PHONY: clean
 clean:
