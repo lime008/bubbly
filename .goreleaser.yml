@@ -6,9 +6,10 @@ builds:
   - binary: bubbly
     main: main.go
     ldflags:
-      - -s -w -X main.VERSION={{ .Version }}
+      - -s -w "-X main.VERSION={{ .Version }} -X '{{ .Env.PRE }}/env.sha1={{ .FullCommit }}' -X '{{ .Env.PRE }}/env.tag={{ .Version }}'"
     env:
       - CGO_ENABLED=0
+      - PRE=github.com/valocode/bubbly
     hooks:
       pre: swag init
     id: linux

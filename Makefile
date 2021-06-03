@@ -1,5 +1,8 @@
 BIN=./build/bubbly
 
+# env vars for compilation
+export CGO_ENABLED=0
+
 # env vars for running tests
 export BUBBLY_HOST=localhost
 export BUBBLY_PORT=8111
@@ -50,7 +53,8 @@ test-integration:
 
 .PHONY: dev
 dev:
-	docker-compose up --build --abort-on-container-exit --remove-orphans
+	docker-compose build --build-arg SHA=${sha} --build-arg TAG=${tag}
+	docker-compose up --abort-on-container-exit --remove-orphans
 
 # Run this target in a separate terminal once `dev` is up to get Postgres console access
 psql:
@@ -65,4 +69,3 @@ cleanup:
 # There are some caveats, but the following target should work:
 act: 
 	act -P ubuntu-latest=golang:latest --env-file act.env -j simple
-	
